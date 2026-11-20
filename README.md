@@ -3,7 +3,7 @@
 Full revoice of Planescape: Torment (classic) with Fish Audio Drama 3.
 Split out of VVE_Builder: everything PST, nothing that needs VVE.
 
-**[Listen to the voice showcase](https://b5635.github.io/pst-voiceover-engine/)** (GitHub Pages: https://b5635.github.io/pst-voiceover-engine/). Rebuild it with `python build_showcase.py`.
+**[Listen to the voice showcase](https://b5635.github.io/pst-voiceover-engine/)**
 
 ## Run
 
