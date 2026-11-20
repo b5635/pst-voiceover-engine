@@ -1,0 +1,157 @@
+# ============================================================
+# .gitignore for pst-voiceover-engine
+# ============================================================
+
+# ------------------------------------------------------------
+# Output & Generated Files
+# ------------------------------------------------------------
+extracted-pst/
+voices_prep_pst/
+# Revoice work: audio is output (ignored); the work that went into it is tracked
+pst_revoice/*
+!pst_revoice/directions.json
+!pst_revoice/directions_claude.json
+!pst_revoice/moods.csv
+!pst_revoice/plan.csv
+!pst_revoice/plan_meta.json
+!pst_revoice/floats.csv
+!pst_revoice/infopoints.csv
+!pst_revoice/test_lines.txt
+!pst_revoice/sample_listen.json
+!pst_revoice/original/
+!pst_revoice/audio_fish/
+pst_revoice/audio_fish/*
+!pst_revoice/audio_fish/generation.json
+mod-pst-revoice/
+.cache/
+
+# ------------------------------------------------------------
+# Profile & Configuration Data
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# WeiDU Modding Tool Files
+# ------------------------------------------------------------
+# WeiDU mod files
+weidu/*.tp2         
+# WeiDU exported content
+weidu/export/        
+
+# ------------------------------------------------------------
+# Global congif, Logs & Temporary Files
+# ------------------------------------------------------------
+# App config
+appconfig.json
+# All log files
+*.log                
+# Backup files
+*.bak                
+
+# ------------------------------------------------------------
+# Generated Data Files
+# ------------------------------------------------------------
+# String reference mappings
+strrefs*.json                
+
+# ------------------------------------------------------------
+# Development Helper Scripts
+# ------------------------------------------------------------
+
+# ------------------------------------------------------------
+# Python Cache & Virtual Environment
+# ------------------------------------------------------------
+# Python bytecode cache
+__pycache__/         
+# Compiled Python files
+*.pyc                
+# Virtual environment
+.venv/               
+venv/                
+# Package metadata
+*.egg-info/          
+# Build folders
+dist/                
+build/         
+# PyTest cache (explicitly)
+.pytest_cache/   
+
+# ------------------------------------------------------------
+# IDE & OS Specific
+# ------------------------------------------------------------
+# VS Code settings
+.vscode/             
+# Claude AI settings
+.claude/
+# PyCharm/IntelliJ settings
+.idea/               
+# Vim swap files
+*.swp                
+# MacOS folder metadata
+.DS_Store            
+# Windows thumbnail cache
+Thumbs.db           
+CLAUDE.local.md
+
+*.wav
+*.WAV
+*.mp3
+*.ogg
+*.mp3
+voice_library/*
+voices_pst/*
+extracted-pst-classic/
+voices_drama3_pst/
+voices_prep_pst-classic/
+voices_moods_pst/
+pst_moods/
+pst_revoice/*
+nwn-path.txt
+
+# BEGIN showcase whitelist (build_showcase.py)
+!index.html
+!.nojekyll
+!docs/
+docs/*
+!docs/audio/
+docs/audio/*
+!docs/audio/gen/
+docs/audio/gen/*
+!docs/audio/gen/VV10080_1.mp3
+!docs/audio/gen/VV12589_1.mp3
+!docs/audio/gen/VV13821_7.mp3
+!docs/audio/gen/VV2370_0.mp3
+!docs/audio/gen/VV41105_1.mp3
+!docs/audio/gen/VV45282_2.mp3
+!docs/audio/gen/VV50040_2.mp3
+!docs/audio/gen/VV50484_7.mp3
+!docs/audio/gen/VV51772_1.mp3
+!docs/audio/gen/VV52065_0.mp3
+!docs/audio/gen/VV52247_1.mp3
+!docs/audio/gen/VV63315_0.mp3
+!docs/audio/gen/VV63342_0.mp3
+!docs/audio/gen/VV66050_0.mp3
+!docs/audio/gen/VV8668_1.mp3
+!voice_library/
+voice_library/*
+!voice_library/nwn/
+voice_library/nwn/*
+!voice_library/nwn/AvHen5M/
+voice_library/nwn/AvHen5M/*
+!voice_library/nwn/AvHen5M/39 Rest.wav
+!voice_library/nwn/AvHen5M/reference.wav
+!voice_library/nwn/SirilM_PCV/
+voice_library/nwn/SirilM_PCV/*
+!voice_library/nwn/SirilM_PCV/03 Battlecry 2.wav
+!voice_library/nwn/SirilM_PCV/reference.wav
+!voice_library/nwn/SuccF/
+voice_library/nwn/SuccF/*
+!voice_library/nwn/SuccF/49 Threaten.wav
+!voice_library/nwn/SuccF/reference.wav
+!voices_pst/
+voices_pst/*
+!voices_pst/Ravel 1.WAV
+!voices_pst/Ravel 2.WAV
+!voices_pst/Ravel 3.WAV
+!voices_pst/The Transcendent One 1.WAV
+!voices_pst/The Transcendent One 2.WAV
+# END showcase whitelist

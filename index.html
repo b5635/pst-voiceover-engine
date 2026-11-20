@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PST Revoice: Voice Showcase</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  audio { width: 100%; }
+  .dir { color: #f0b429; font-weight: 600; }
+  .tag { color: #6cb6ff; }
+  .line { font-size: 1.02rem; }
+  .raw { color: var(--bs-body-color); font-style: italic; }
+  code { word-break: break-all; }
+</style>
+</head>
+<body>
+<nav class="navbar bg-body-tertiary border-bottom"><div class="container">
+  <span class="navbar-brand mb-0 h1">PST Revoice · Voice Showcase</span>
+</div></nav>
+
+<main class="container py-4">
+  <p class="lead">Planescape: Torment re-voiced with <strong>Fish Audio Drama 3</strong>. Each card pairs an original voice (the clip the model cloned) with real takes
+  generated for the game. Press <em>Show raw game line</em> to swap the
+  directed text Drama 3 received for the untouched game dialogue.</p>
+
+  <div class="row g-4" id="voices">
+  <div class="col-12 col-lg-6 voice" data-group="pst">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-0">Ravel</h2>
+        <div class="small text-secondary mb-3">Planescape: Torment · original voice acting, cloned · 161 clean speech-only lines generated</div>
+        <h3 class="h6 text-uppercase text-secondary">Original voice</h3>
+        <div class="orig mb-2"><div class="small text-secondary">Original game line 1 · <code>Ravel 1.WAV</code></div><audio controls preload="none" src="voices_pst/Ravel%201.WAV"></audio><div class="small fst-italic">“Well, now, my pretty thing, have you returned at last? You were a-gone so long, I a-feared you forgot poor, lonely Ravel.”</div></div><div class="orig mb-2"><div class="small text-secondary">Original game line 2 · <code>Ravel 2.WAV</code></div><audio controls preload="none" src="voices_pst/Ravel%202.WAV"></audio><div class="small fst-italic">“You have forgotten your place, HALF-man. Humility is in order.”</div></div><div class="orig mb-2"><div class="small text-secondary">Original game line 3 · <code>Ravel 3.WAV</code></div><audio controls preload="none" src="voices_pst/Ravel%203.WAV"></audio><div class="small fst-italic">“What can change the nature of a man?”</div></div>
+        <h3 class="h6 text-uppercase text-secondary mt-4">Generated with Fish Audio Drama 3</h3>
+        
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Ravel</strong>
+          <span class="small text-secondary"><code>VV52065_0.wav</code> · StrRef 52065 · 9.8 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV52065_0.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[mocking, playful, teasing]&lt;/span&gt; You have a hole where ... wear? Wear your mortality once lay within your shell.&lt;/span&gt;' data-raw='You have a hole where... wear? Wear your mortality once lay within your shell.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s0_0">Take details</a>
+        <div class="collapse mt-2" id="s0_0">
+          <div class="small text-secondary mb-1">Mood tag: neutral · director: strata:qwen3.6-35b-a3b-ud-q4_k_m · generated 2026-11-20</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>1850450087</td><td>9.76 s</td><td>Ravel.multi</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Ravel</strong>
+          <span class="small text-secondary"><code>VV51772_1.wav</code> · StrRef 51772 · 3.5 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV51772_1.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[serious, probing, cutting through the flattery]&lt;/span&gt; And they travel with you willingly?&lt;/span&gt;' data-raw='And they travel with you willingly?'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s0_1">Take details</a>
+        <div class="collapse mt-2" id="s0_1">
+          <div class="small text-secondary mb-1">Mood tag: neutral · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-256k · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>1574829128</td><td>3.54 s</td><td>Ravel.multi</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Ravel</strong>
+          <span class="small text-secondary"><code>VV52247_1.wav</code> · StrRef 52247 · 9.9 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV52247_1.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[mocking, playful, dismissive]&lt;/span&gt; &amp;quot;Pretty, pretty, eh, Marta ... ? One shouldn&amp;#x27;t swallow such a thing, no, no ...&amp;quot;&lt;/span&gt;' data-raw='Pretty, pretty, eh, Marta...? One shouldn&#x27;t swallow such a thing, no, no...'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s0_2">Take details</a>
+        <div class="collapse mt-2" id="s0_2">
+          <div class="small text-secondary mb-1">Mood tag: neutral · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-256k · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>1327376850</td><td>9.88 s</td><td>Ravel.multi</td></tr></tbody></table></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6 voice" data-group="pst">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-0">The Transcendent One</h2>
+        <div class="small text-secondary mb-3">Planescape: Torment · original voice acting, cloned · 107 clean speech-only lines generated</div>
+        <h3 class="h6 text-uppercase text-secondary">Original voice</h3>
+        <div class="orig mb-2"><div class="small text-secondary">Original game line 1 · <code>The Transcendent One 1.WAV</code></div><audio controls preload="none" src="voices_pst/The%20Transcendent%20One%201.WAV"></audio><div class="small fst-italic">“YOU ARE UNWELCOME HERE, BROKEN ONE.”</div></div><div class="orig mb-2"><div class="small text-secondary">Original game line 2 · <code>The Transcendent One 2.WAV</code></div><audio controls preload="none" src="voices_pst/The%20Transcendent%20One%202.WAV"></audio><div class="small fst-italic">“SO YOU HAVE COME.”</div></div>
+        <h3 class="h6 text-uppercase text-secondary mt-4">Generated with Fish Audio Drama 3</h3>
+        
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>The Transcendent One</strong>
+          <span class="small text-secondary"><code>VV63342_0.wav</code> · StrRef 63342 · 8.7 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV63342_0.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[cold, arrogant, threatening]&lt;/span&gt; Perhaps you doubt my powers here, in this place. A demonstration may silence your doubt.&lt;/span&gt;' data-raw='PERHAPS YOU DOUBT MY POWERS HERE, IN THIS PLACE. A DEMONSTRATION MAY SILENCE YOUR DOUBT.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s1_0">Take details</a>
+        <div class="collapse mt-2" id="s1_0">
+          <div class="small text-secondary mb-1">Mood tag: neutral · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-128k · generated 2026-11-20</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>1433205626</td><td>8.74 s</td><td>The_Transcendent_One.multi</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>The Transcendent One</strong>
+          <span class="small text-secondary"><code>VV63315_0.wav</code> · StrRef 63315 · 3.2 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV63315_0.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[cold, interrogative, demanding]&lt;/span&gt; Where is the one who brought you here?&lt;/span&gt;' data-raw='WHERE IS THE ONE WHO BROUGHT YOU HERE?'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s1_1">Take details</a>
+        <div class="collapse mt-2" id="s1_1">
+          <div class="small text-secondary mb-1">Mood tag: neutral · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-256k · generated 2026-11-20</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>931247833</td><td>3.18 s</td><td>The_Transcendent_One.multi</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>The Transcendent One</strong>
+          <span class="small text-secondary"><code>VV66050_0.wav</code> · StrRef 66050 · 8.9 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV66050_0.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[calm, philosophical, resonant]&lt;/span&gt; All that lives is hunted. The predator is death. It hunts us no longer.&lt;/span&gt;' data-raw='ALL THAT LIVES IS HUNTED. THE PREDATOR IS DEATH. IT HUNTS US NO LONGER.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s1_2">Take details</a>
+        <div class="collapse mt-2" id="s1_2">
+          <div class="small text-secondary mb-1">Mood tag: neutral · director: strata:qwen3.6-35b-a3b-ud-q4_k_m · generated 2026-11-20</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>502820678</td><td>8.87 s</td><td>The_Transcendent_One.multi</td></tr></tbody></table></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6 voice" data-group="nwn">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-0">Succubus, Manipulative</h2>
+        <div class="small text-secondary mb-3">Neverwinter Nights sound set · nwn:SuccF · 72 clean speech-only lines generated</div>
+        <h3 class="h6 text-uppercase text-secondary">Original voice</h3>
+        <div class="orig mb-2"><div class="small text-secondary">Cloning reference (what Drama 3 heard) · <code>SuccF/reference.wav</code></div><audio controls preload="none" src="voice_library/nwn/SuccF/reference.wav"></audio><div class="small fst-italic">“Well hello there. Farewell for now. I need to speak with you. Come here.”</div></div><div class="orig mb-2"><div class="small text-secondary">Original clip: Threaten · <code>SuccF/49 Threaten.wav</code></div><audio controls preload="none" src="voice_library/nwn/SuccF/49%20Threaten.wav"></audio><div class="small fst-italic">“You tempt pain that you have never dreamed of.”</div></div>
+        <h3 class="h6 text-uppercase text-secondary mt-4">Generated with Fish Audio Drama 3</h3>
+        
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Kesai-Serris</strong>
+          <span class="small text-secondary"><code>VV41105_1.wav</code> · StrRef 41105 · 6.8 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV41105_1.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[softly, breathless, pulling back]&lt;/span&gt; Thank you, but ... I&amp;#x27;ll be fine. I just need some time to think about it, that&amp;#x27;s all.&lt;/span&gt;' data-raw='Thank you, but... I&#x27;ll be fine. I just need some time to think about it, that&#x27;s all.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s2_0">Take details</a>
+        <div class="collapse mt-2" id="s2_0">
+          <div class="small text-secondary mb-1">Mood tag: nwn:SuccF · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-256k · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>106115481</td><td>6.8 s</td><td>nwn_SuccF</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Vrischika</strong>
+          <span class="small text-secondary"><code>VV50484_7.wav</code> · StrRef 50484 · 9.1 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV50484_7.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[bitter, sneering, challenging]&lt;/span&gt; ... are you not? You would not think that a score thousand years of slavery had left their scars, no?&lt;/span&gt;' data-raw='...are you not? You would not think that a score thousand years of slavery had left their scars, no?'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s2_1">Take details</a>
+        <div class="collapse mt-2" id="s2_1">
+          <div class="small text-secondary mb-1">Mood tag: nwn:SuccF · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-256k · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>1510268300</td><td>9.14 s</td><td>nwn_SuccF</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Dona Quisho</strong>
+          <span class="small text-secondary"><code>VV50040_2.wav</code> · StrRef 50040 · 9.0 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV50040_2.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[cold, cunning, smooth, deliberate]&lt;/span&gt; But now I have knowledge you need, and you&amp;#x27;ll never get it unless you let Agril-Shanak go.&lt;/span&gt;' data-raw='But now I have knowledge you need, and you&#x27;ll never get it unless you let Agril-Shanak go.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s2_2">Take details</a>
+        <div class="collapse mt-2" id="s2_2">
+          <div class="small text-secondary mb-1">Mood tag: nwn:SuccF · director: strata:qwen3.6-35b-a3b-ud-q4_k_m · generated 2026-11-17</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>717381071</td><td>8.96 s</td><td>nwn_SuccF</td></tr></tbody></table></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6 voice" data-group="nwn">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-0">Grimgnaw</h2>
+        <div class="small text-secondary mb-3">Neverwinter Nights sound set · nwn:AvHen5M · 78 clean speech-only lines generated</div>
+        <h3 class="h6 text-uppercase text-secondary">Original voice</h3>
+        <div class="orig mb-2"><div class="small text-secondary">Cloning reference (what Drama 3 heard) · <code>AvHen5M/reference.wav</code></div><audio controls preload="none" src="voice_library/nwn/AvHen5M/reference.wav"></audio><div class="small fst-italic">“Welcome, friend. We shall meet again when the Silent Lord claims us. We must speak.”</div></div><div class="orig mb-2"><div class="small text-secondary">Original clip: Rest · <code>AvHen5M/39 Rest.wav</code></div><audio controls preload="none" src="voice_library/nwn/AvHen5M/39%20Rest.wav"></audio><div class="small fst-italic">“If we stop to rest I promise you won&#x27;t die in your sleep... tonight.”</div></div>
+        <h3 class="h6 text-uppercase text-secondary mt-4">Generated with Fish Audio Drama 3</h3>
+        
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Githzerai Townsperson</strong>
+          <span class="small text-secondary"><code>VV2370_0.wav</code> · StrRef 2370 · 6.6 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV2370_0.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[even, restrained, near-monotone, disappointed, analytical]&lt;/span&gt; Your question is a stab in the dark. An arrow without direction.&lt;/span&gt;' data-raw='Your question is a stab in the dark. An arrow without direction.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s3_0">Take details</a>
+        <div class="collapse mt-2" id="s3_0">
+          <div class="small text-secondary mb-1">Mood tag: nwn:AvHen5M · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-128k · generated 2026-11-20</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>999467189</td><td>6.58 s</td><td>nwn_AvHen5M</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Hailcii&#x27;n</strong>
+          <span class="small text-secondary"><code>VV45282_2.wav</code> · StrRef 45282 · 6.4 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV45282_2.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[even, restrained, near-monotone, measured, instructive]&lt;/span&gt; Ask your questions. Direct them as you would direct your mind.&lt;/span&gt;' data-raw='Ask your questions. Direct them as you would direct your mind.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s3_1">Take details</a>
+        <div class="collapse mt-2" id="s3_1">
+          <div class="small text-secondary mb-1">Mood tag: nwn:AvHen5M · director: strata:qwen3.6-35b-a3b-ud-q4_k_m · generated 2026-11-20</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>1875166682</td><td>6.38 s</td><td>nwn_AvHen5M</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Githzerai Townsperson</strong>
+          <span class="small text-secondary"><code>VV8668_1.wav</code> · StrRef 8668 · 3.0 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV8668_1.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[even, restrained, near-monotone, cold, suspicious]&lt;/span&gt; You are not one &lt;span class=&quot;tag&quot;&gt;&amp;lt;emphasis&amp;gt;&lt;/span&gt;known&lt;span class=&quot;tag&quot;&gt;&amp;lt;/emphasis&amp;gt;&lt;/span&gt; to me.&lt;/span&gt;' data-raw='You are not one *known* to me.'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s3_2">Take details</a>
+        <div class="collapse mt-2" id="s3_2">
+          <div class="small text-secondary mb-1">Mood tag: nwn:AvHen5M · director: strata:qwen3.6-35b-a3b-ud-q4_k_m · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>42232201</td><td>3.02 s</td><td>nwn_AvHen5M</td></tr></tbody></table></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6 voice" data-group="nwn">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5 mb-0">Male, Manic Psychotic</h2>
+        <div class="small text-secondary mb-3">Neverwinter Nights sound set · nwn:SirilM_PCV · 80 clean speech-only lines generated</div>
+        <h3 class="h6 text-uppercase text-secondary">Original voice</h3>
+        <div class="orig mb-2"><div class="small text-secondary">Cloning reference (what Drama 3 heard) · <code>SirilM_PCV/reference.wav</code></div><audio controls preload="none" src="voice_library/nwn/SirilM_PCV/reference.wav"></audio><div class="small fst-italic">“Hello then. Hello. Bye then. Listen to me here. Listen.”</div></div><div class="orig mb-2"><div class="small text-secondary">Original clip: Battlecry 2 · <code>SirilM_PCV/03 Battlecry 2.wav</code></div><audio controls preload="none" src="voice_library/nwn/SirilM_PCV/03%20Battlecry%202.wav"></audio><div class="small fst-italic">“Die die die die die!!”</div></div>
+        <h3 class="h6 text-uppercase text-secondary mt-4">Generated with Fish Audio Drama 3</h3>
+        
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Creeden</strong> <span class="badge text-bg-warning">has a [chuckles]</span>
+          <span class="small text-secondary"><code>VV12589_1.wav</code> · StrRef 12589 · 5.7 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV12589_1.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[amused, mocking, chatty]&lt;/span&gt; A cutter&amp;#x27;d think ye&amp;#x27;d just ask yer mimir for dark like that, he would [chuckles]&lt;/span&gt;' data-raw='A cutter&#x27;d think ye&#x27;d just ask yer mimir for dark like that, he would...'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s4_0">Take details</a>
+        <div class="collapse mt-2" id="s4_0">
+          <div class="small text-secondary mb-1">Mood tag: nwn:SirilM_PCV · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-256k · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>531052618</td><td>5.74 s</td><td>nwn_SirilM_PCV</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Barking-Wilder</strong>
+          <span class="small text-secondary"><code>VV13821_7.wav</code> · StrRef 13821 · 6.6 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV13821_7.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[erratic, rapid, disjointed]&lt;/span&gt; What matters it? Look not for an advance-age, advan-tage, and it will search for you...&lt;/span&gt;' data-raw='What matters it? Look not for an advance-age, advan-tage, and it will search for you...'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s4_1">Take details</a>
+        <div class="collapse mt-2" id="s4_1">
+          <div class="small text-secondary mb-1">Mood tag: nwn:SirilM_PCV · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-256k · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>666651905</td><td>6.64 s</td><td>nwn_SirilM_PCV</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="sample border rounded p-3 mb-3">
+        <div class="d-flex flex-wrap justify-content-between gap-1 mb-1">
+          <strong>Creeden</strong>
+          <span class="small text-secondary"><code>VV10080_1.wav</code> · StrRef 10080 · 7.5 s</span>
+        </div>
+        <audio controls preload="none" src="docs/audio/gen/VV10080_1.mp3"></audio>
+        <p class="line mt-2 mb-2" data-directed='&lt;span class=&quot;seg&quot;&gt;&lt;span class=&quot;dir&quot;&gt;[enthusiastic, fast-paced, inviting]&lt;/span&gt; Oye, cutter, &amp;#x27;ow ye doin&amp;#x27; there? Wot sorta &lt;span class=&quot;tag&quot;&gt;&amp;lt;emphasis&amp;gt;&lt;/span&gt;deeee-licious&lt;span class=&quot;tag&quot;&gt;&amp;lt;/emphasis&amp;gt;&lt;/span&gt; ratsies is ye interested in this fine day?&lt;/span&gt;' data-raw='Oye, cutter, &#x27;ow ye doin&#x27; there? Wot sorta deeee-licious ratsies is ye interested in this fine day?'></p>
+        <button class="btn btn-sm btn-outline-primary toggle-line" type="button">Show raw game line</button>
+        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#s4_2">Take details</a>
+        <div class="collapse mt-2" id="s4_2">
+          <div class="small text-secondary mb-1">Mood tag: nwn:SirilM_PCV · director: strata:qwen3.6-35b-a3b-ud-q3_k_m-128k · generated 2026-11-19</div>
+          <div class="table-responsive"><table class="table table-sm small mb-0">
+            <thead><tr><th>Seg</th><th>Seed</th><th>Length</th><th>Voice reference</th></tr></thead>
+            <tbody><tr><td>1</td><td>44724961</td><td>7.5 s</td><td>nwn_SirilM_PCV</td></tr></tbody></table></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <section id="workflow" class="mt-5">
+    <h2 class="h4">Workflow</h2>
+    <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3">
+      <div class="col"><div class="card h-100"><div class="card-body">
+        <div class="badge text-bg-primary mb-2">1</div><h3 class="h6">Extract the game</h3>
+        <p class="small mb-0">Dialogue (DLG), creatures (CRE) and strings are dumped from the game files into a dialog report. Every line gets a speaker,
+        its text and its original sound file, if it has one. Lines the game already voiced keep their original audio.</p>
+      </div></div></div>
+      <div class="col"><div class="card h-100"><div class="card-body">
+        <div class="badge text-bg-primary mb-2">2</div><h3 class="h6">Plan &amp; split</h3>
+        <p class="small mb-0">Each line is split into spoken speech and narration. Narration goes to a single storyteller voice. Pronunciation rules
+        fix invented words and names.</p>
+      </div></div></div>
+      <div class="col"><div class="card h-100"><div class="card-body">
+        <div class="badge text-bg-primary mb-2">3</div><h3 class="h6">Cast the voices</h3>
+        <p class="small mb-0">Companions and key characters are cloned from their original acting. Everyone else is cast by an LLM (Qwen, local) from a character profile
+        (age, personality, voice description) onto a library voice from Neverwinter Nights or World of Warcraft.</p>
+      </div></div></div>
+      <div class="col"><div class="card h-100"><div class="card-body">
+        <div class="badge text-bg-warning mb-2">4</div><h3 class="h6">Add voice direction (Qwen)</h3>
+        <p class="small mb-0">A local Qwen3.6 35B-A3B reads the line, its context and the speaker, then writes a short acting direction such as
+        <span class="dir">[mocking, sweetly sinister]</span> and marks emphasis. It may not change the words: the result is checked against the original text.</p>
+      </div></div></div>
+      <div class="col"><div class="card h-100"><div class="card-body">
+        <div class="badge text-bg-success mb-2">5</div><h3 class="h6">Generate with Fish Drama 3</h3>
+        <p class="small mb-0">Drama 3 speaks the directed text in the cloned voice. Bad takes (cut off, too short, stalled) are rolled again with a new seed.
+        The work is spread across several PCs with their own GPUs.</p>
+      </div></div></div>
+      <div class="col"><div class="card h-100"><div class="card-body">
+        <div class="badge text-bg-secondary mb-2">6</div><h3 class="h6">Review &amp; build the mod</h3>
+        <p class="small mb-0">Takes are stitched, silence-trimmed and reviewed, then packaged as a WeiDU mod that replaces the game's voice files.</p>
+      </div></div></div>
+    </div>
+  </section>
+
+  <section id="setup" class="mt-5">
+    <h2 class="h4">Fish Drama 3 setup</h2>
+    <div class="row g-4">
+      <div class="col-12 col-lg-6"><div class="card h-100"><div class="card-body">
+        <h3 class="h6 text-uppercase text-secondary">Model &amp; runtime</h3>
+        <ul class="mb-0">
+          <li>Drama 3 <em>final</em> weights, <strong>Q4_K GGUF</strong> (Drama-35B-A3B-v3), community quant by tunjayoff</li>
+          <li>Runtime: <strong>speech.cpp 0.10.1</strong> (Windows, Vulkan), one persistent <code>speech worker</code> per GPU</li>
+          <li>Cloning: <code>multi</code> voice mode, one voice per character built from ~10–30 s of reference clips with transcripts</li>
+          <li>Direction: a leading <code>[free-form direction]</code>, <code>&lt;emphasis&gt;</code> tags and pronunciation fixes, written per line by a local LLM
+              director (Strata, Qwen3.6 35B-A3B Q4_K_M)</li>
+          <li>Narration and directed takes are generated separately and stitched; narration is left out of this page</li>
+        </ul>
+      </div></div></div>
+      <div class="col-12 col-lg-6"><div class="card h-100"><div class="card-body">
+        <h3 class="h6 text-uppercase text-secondary">Sampling parameters</h3>
+        <table class="table table-sm mb-2">
+          <tr><td>top_k</td><td>4097</td></tr>
+          <tr><td>top_p</td><td>0.9</td></tr>
+          <tr><td>temperature</td><td>1.0</td></tr>
+          <tr><td>seed</td><td>per segment, reproducible (shown under <em>Take details</em>)</td></tr>
+          <tr><td>max_seconds</td><td>3 s + 0.7 s per word (runaway-silence guard)</td></tr>
+          <tr><td>retries</td><td>up to 3 takes; truncated, too-short or stalled takes are re-rolled</td></tr>
+        </table>
+        <p class="small text-secondary mb-0">A small top-k makes Drama 3 stall in silence at sentence ends, hence 4097. Samples here all passed on the first attempt.</p>
+      </div></div></div>
+      <div class="col-12"><div class="card"><div class="card-body">
+        <h3 class="h6 text-uppercase text-secondary">Hardware</h3>
+        <div class="table-responsive"><table class="table table-sm mb-2">
+          <thead><tr><th>Machine</th><th>GPU</th><th>RAM</th><th>CPU</th></tr></thead>
+          <tbody>
+            <tr><td>Main PC</td><td>RTX 4060 Ti 16 GB (+ GTX 1660 SUPER 6 GB)</td><td>32 GB</td><td>Intel i7-13700F</td></tr>
+            <tr><td>Farm node</td><td>RTX 3070 8 GB</td><td>32 GB</td><td>-</td></tr>
+            <tr><td>Farm node</td><td>RTX 4070 Super 12 GB</td><td>32 GB</td><td>-</td></tr>
+          </tbody></table></div>
+        <p class="small text-secondary mb-0">Windows 11. Lines were spread across these machines; the machine that rendered an individual take is not recorded.
+        The 35B-A3B model keeps as many expert layers on the GPU as fit and computes the rest on the CPU.</p>
+      </div></div></div>
+    </div>
+  </section>
+
+  <footer class="text-secondary small mt-5 border-top pt-3">
+    Built with Fish Audio (Drama 3, Fish Audio Community License v1.0). Original clips are short excerpts of Planescape: Torment and Neverwinter Nights
+    audio shown for demonstration; all rights belong to their owners.
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Raw/directed toggle
+  document.querySelectorAll('.line').forEach(function (p) {
+    p.innerHTML = p.dataset.directed;
+    p.dataset.mode = 'directed';
+  });
+  document.querySelectorAll('.toggle-line').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var p = btn.parentElement.querySelector('.line');
+      if (p.dataset.mode === 'directed') {
+        p.textContent = p.dataset.raw;
+        p.classList.add('raw');
+        p.dataset.mode = 'raw';
+        btn.textContent = 'Show directed line';
+      } else {
+        p.innerHTML = p.dataset.directed;
+        p.classList.remove('raw');
+        p.dataset.mode = 'directed';
+        btn.textContent = 'Show raw game line';
+      }
+    });
+  });
+  // Only one audio element plays at a time
+  document.addEventListener('play', function (e) {
+    document.querySelectorAll('audio').forEach(function (a) { if (a !== e.target) a.pause(); });
+  }, true);
+</script>
+</body>
+</html>

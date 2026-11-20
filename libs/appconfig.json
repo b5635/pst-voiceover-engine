@@ -1,0 +1,12 @@
+{
+  "GAME_DIRECTORY": "C:/Program Files (x86)/Black Isle/Torment",
+  "TEXT_ENCODING": "utf-8",
+  "CSV_PATH": "dialog-report-pst-classic.csv",
+  "PATCHER_CONFIG_PATH": "patcher-config-pst.json",
+  "EXTRACT_DIR": "extracted-pst-classic",
+  "VOICES_PREP_DIR": "voices_prep_pst-classic",
+  "VOICES_DIR": "voices_pst",
+  "QUOTED_SPEECH": true,
+  "BASE_URL": "http://127.0.0.1:17493",
+  "LANGUAGE": "en_US"
+}

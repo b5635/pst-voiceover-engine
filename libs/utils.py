@@ -1,0 +1,1018 @@
+"""
+Common utility functions for the VVE Builder project.
+
+This module consolidates reusable functions used across multiple scripts
+to avoid code duplication and ensure consistency.
+"""
+
+import json
+import logging
+import os
+import re
+import struct
+import subprocess
+import sys
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, Iterator, Optional, Set, Union
+
+from libs.appconfig import cfg
+
+# ============================================================================
+# Base36 Encoding/Decoding
+# ============================================================================
+
+BASE36_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def from_base36(s: str) -> int:
+    """
+    Convert a base36 string to an integer.
+
+    Args:
+        s: Base36 encoded string (case-insensitive)
+
+    Returns:
+        Integer value of the base36 string
+
+    Raises:
+        ValueError: If string contains invalid base36 characters
+
+    Example:
+        >>> from_base36("0009IX")
+        12345
+    """
+    s = s.upper()
+    value = 0
+    for ch in s:
+        idx = BASE36_ALPHABET.index(ch)  # raises ValueError on bad char
+        value = value * 36 + idx
+    return value
+
+
+def to_base36(n: int, width: int = 6) -> str:
+    """
+    Convert an integer to a base36 string.
+
+    Args:
+        n: Integer to convert
+        width: Minimum width of output string (zero-padded)
+
+    Returns:
+        Base36 encoded string, uppercase, zero-padded to width
+
+    Example:
+        >>> to_base36(12345, 6)
+        '0009IX'
+    """
+    if n == 0:
+        return "0" * width
+
+    digits = []
+    while n > 0:
+        digits.append(BASE36_ALPHABET[n % 36])
+        n //= 36
+
+    result = "".join(reversed(digits))
+    return result.zfill(width)
+
+
+# ============================================================================
+# Filename Pattern Matching
+# ============================================================================
+
+def filename_re() -> re.Pattern:
+    """
+    Build a regex pattern for matching TTS voice filenames.
+
+    Matches filenames like TS000ABC.WAV where TS is cfg.FILENAME_PREFIX
+    and 000ABC is the base36-encoded StrRef.
+
+    Pattern is built fresh each call so config changes take effect immediately.
+
+    Returns:
+        Compiled regex pattern (case-insensitive) with one capture group
+        for the 6-character base36 portion
+
+    Example:
+        >>> pattern = filename_re()
+        >>> match = pattern.match("TS0009IX.WAV")
+        >>> match.group(1)
+        '0009IX'
+    """
+    return re.compile(
+        re.escape(cfg.FILENAME_PREFIX) + r"([0-9A-Za-z]{6})\.WAV$",
+        re.IGNORECASE,
+    )
+
+
+# ============================================================================
+# Configuration Loading
+# ============================================================================
+
+def load_patcher_config(config_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Load the patcher configuration from a JSON file.
+
+    The configuration file contains text transformation rules including
+    identity tokens, gender tokens, and phonetic rules for TTS preparation.
+
+    Args:
+        config_path: Path to the JSON configuration file
+
+    Returns:
+        The loaded configuration dictionary
+
+    Raises:
+        FileNotFoundError: If the configuration file doesn't exist
+        json.JSONDecodeError: If the file contains invalid JSON
+
+    Example:
+        >>> config = load_patcher_config("patcher-config.json")
+        >>> pc_name = config.get("pcName", "CHARNAME")
+    """
+    with open(config_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def save_patcher_config(config_path: Union[str, Path], config: Dict[str, Any]) -> None:
+    """
+    Write the patcher configuration out to a JSON file.
+
+    Writes atomically (via a temporary file + replace) so a crash or
+    concurrent read never sees a partially-written file.
+
+    Args:
+        config_path: Path to write the JSON configuration file to.
+        config: The full configuration dictionary to write.
+
+    Example:
+        >>> config = load_patcher_config("patcher-config.json")
+        >>> config["pcName"] = "Gorion"
+        >>> save_patcher_config("patcher-config.json", config)
+    """
+    config_path = Path(config_path)
+    tmp_path = config_path.with_suffix(config_path.suffix + ".tmp")
+    with tmp_path.open("w", encoding="utf-8") as f:
+        json.dump(config, f, indent=2, ensure_ascii=False)
+    tmp_path.replace(config_path)
+
+
+def update_patcher_config(config_path: Union[str, Path], updates: Dict[str, Any]) -> None:
+    """
+    Merge updates into the patcher configuration and persist it to disk.
+
+    Loads the existing configuration (or starts from an empty dict if the
+    file doesn't exist yet), shallow-merges `updates` into it, and writes
+    the result back out via save_patcher_config().
+
+    Args:
+        config_path: Path to the JSON configuration file.
+        updates: Top-level key/value pairs to merge into the configuration.
+
+    Example:
+        >>> update_patcher_config("patcher-config.json", {"pcName": "Gorion"})
+    """
+    config_path = Path(config_path)
+    try:
+        config = load_patcher_config(config_path)
+    except (FileNotFoundError, json.JSONDecodeError):
+        config = {}
+    config.update(updates)
+    save_patcher_config(config_path, config)
+
+
+def convert_replacement(replacement: str) -> str:
+    """
+    Convert .NET-style backreferences ($1, $2, etc.) to Python-style (\1, \2, etc.)
+    """
+    # Replace $1 with \1, $2 with \2, etc.
+    # Using \g<1> ensures the backreference works correctly
+    return re.sub(r'\$(\d+)', r'\\g<\1>', replacement)
+
+
+def preprocess_text(text: str, patcher_config: Dict[str, Any]) -> str:
+    """
+    Apply comprehensive text transformations for TTS preparation.
+
+    Processes the input text through several transformation stages:
+        1. Identity tokens: Replace <CHARNAME>, <GABBER>, <RACE>, <PRO_RACE>
+        2. Gender tokens: Replace <HE>, <SHE>, <HIS>, <HER>, <HIM>, etc.
+        3. Phonetic rules: Apply regex-based substitutions
+        4. Token cleanup: Remove any remaining <...> tokens
+
+    Args:
+        text: The raw input text from the CSV file
+        patcher_config: Loaded patcher configuration dictionary
+
+    Returns:
+        The preprocessed text, ready for TTS generation
+
+    Example:
+        >>> config = {"pcName": "Gorion", "genderTokens": {"HE": {"male": "he"}}}
+        >>> preprocess_text("Talk to <CHARNAME>", config)
+        'Talk to Gorion'
+    """
+    # Stage 1: Identity tokens
+    identity_tokens = patcher_config.get("identityTokens", {})
+
+    token_map = {}
+    for token, source_key in identity_tokens.items():
+        if source_key in patcher_config:
+            token_map[token] = patcher_config[source_key]
+
+    for token, replacement in token_map.items():
+        text = text.replace(f"<{token}>", replacement)
+
+    # Stage 2: Gender tokens
+    pc_gender = patcher_config.get("pcGender", "neutral")
+    gender_tokens = patcher_config.get("genderTokens", {})
+
+    for token, forms in gender_tokens.items():
+        replacement = forms.get(pc_gender, "")
+        if replacement:
+            text = text.replace(f"<{token}>", replacement)
+
+    # Stage 3: Phonetic rules
+    phonetic_rules = patcher_config.get("phoneticRules", [])
+
+    for rule in phonetic_rules:
+        pattern = rule.get("pattern")
+        replacement = rule.get("replacement", "")
+        case_sensitive = rule.get("caseSensitive", False)
+
+        # Convert .NET-style backreferences to Python-style
+        replacement = convert_replacement(replacement)
+
+        if not pattern:
+            continue
+
+        flags = 0 if case_sensitive else re.IGNORECASE
+
+        try:
+            text = re.sub(pattern, replacement, text, flags=flags)
+        except re.error:
+            continue
+
+    # Stage 4: Remove any remaining tokens
+    text = re.sub(r"<[^>]+>", "", text)
+
+    return text
+
+
+# ============================================================================
+# dialog.tlk Parsing
+# ============================================================================
+
+@dataclass
+class TlkEntry:
+    """
+    Represents a single entry from a dialog.tlk file.
+
+    Attributes:
+        strref: The string reference ID (index in the TLK file).
+        flags: Bitmask of flags for this entry (gender, sound, etc.).
+        sound_resref: The sound resource reference (8-character identifier).
+        text: The actual text content of the entry.
+    """
+    strref: int
+    flags: int
+    sound_resref: str
+    text: str
+
+
+def parse_dialog_tlk(path: Path, encoding: Optional[str] = None) -> Dict[int, TlkEntry]:
+    """
+    Parse a dialog.tlk / dialogf.tlk file into strref -> TlkEntry.
+
+    Reads the binary TLK file format used by Infinity Engine games and
+    extracts each string entry with its associated metadata.
+
+    Args:
+        path: Path to the .tlk file.
+        encoding: Text encoding to use for decoding strings.
+            Defaults to cfg.TEXT_ENCODING or "utf-8".
+
+    Returns:
+        Dict mapping strref (int) to TlkEntry.
+
+    Raises:
+        ValueError: If the file signature isn't "TLK ".
+        FileNotFoundError: If the file doesn't exist.
+
+    Example:
+        >>> tlk = parse_dialog_tlk(Path("lang/en_US/dialog.tlk"))
+        >>> entry = tlk.get(12345)
+        >>> print(entry.text)
+    """
+    encoding_str = encoding or cfg.TEXT_ENCODING or "utf-8"
+    data = path.read_bytes()
+    signature, version, lang_id, count, strings_offset = struct.unpack_from(
+        "<4s4sHII", data, 0
+    )
+    if signature != b"TLK ":
+        raise ValueError(f"Not a TLK file: {path} (signature={signature!r})")
+
+    entries: Dict[int, TlkEntry] = {}
+    pos = 18  # header size
+    for strref in range(count):
+        flags, sound_resref_raw, vol_var, pitch_var, text_off, text_len = (
+            struct.unpack_from("<H8sIII I", data, pos)
+        )
+        sound_resref = sound_resref_raw.split(b"\x00", 1)[0].decode(encoding_str, errors="replace")
+        text_start = strings_offset + text_off
+        text = data[text_start:text_start + text_len].decode(encoding_str, errors="replace")
+        entries[strref] = TlkEntry(strref, flags, sound_resref, text)
+        pos += 26  # entry size
+
+    return entries
+
+
+def decode_wavc(path: Path) -> bool:
+    """
+    Convert a WAVC (ACM-compressed) file to PCM WAV in place.
+
+    Classic Infinity Engine games (e.g. original Planescape: Torment)
+    store sounds as WAVC: a small header followed by Interplay ACM data.
+    ffmpeg can decode the ACM payload once the header is stripped.
+    Files that are already plain RIFF WAV are left untouched.
+
+    Args:
+        path: Path to the extracted .WAV file.
+
+    Returns:
+        True if the file is (now) a PCM WAV, False if decoding failed.
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        data = path.read_bytes()
+        if data[:4] != b"WAVC":
+            return True
+
+        # WAVC V1.0 header: 0x10 = offset of the ACM data
+        acm_offset = int.from_bytes(data[0x10:0x14], "little")
+        acm_path = path.with_suffix(".acm")
+        pcm_path = path.with_suffix(".pcm.wav")
+        acm_path.write_bytes(data[acm_offset:])
+
+        cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y',
+               '-f', 'acm', '-i', str(acm_path), str(pcm_path)]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        acm_path.unlink(missing_ok=True)
+        if result.returncode != 0 or not pcm_path.exists():
+            logger.warning(f"Failed to decode WAVC {path.name}: {result.stderr.strip()}")
+            pcm_path.unlink(missing_ok=True)
+            return False
+
+        pcm_path.replace(path)
+        return True
+    except Exception as e:
+        logger.error(f"Error decoding WAVC {path}: {e}")
+        return False
+
+
+def find_dialog_tlk(game_dir: Path) -> Path:
+    """
+    Locate dialog.tlk under <game_dir>/lang/*/, preferring en_us.
+
+    Searches the game directory's lang subdirectories for dialog.tlk,
+    preferring the en_us locale if available. Classic (non-EE) games keep
+    dialog.tlk in the game root instead, which is used as a fallback.
+
+    Args:
+        game_dir: Root game directory path.
+
+    Returns:
+        Path to the found dialog.tlk file.
+
+    Raises:
+        FileNotFoundError: If no dialog.tlk is found in any lang directory.
+
+    Example:
+        >>> tlk_path = find_dialog_tlk(Path("C:/BaldursGate"))
+        >>> print(tlk_path)
+        C:/BaldursGate/lang/en_US/dialog.tlk
+    """
+    candidates = list(game_dir.glob("lang/*/dialog.tlk"))
+    if not candidates:
+        # Classic games (e.g. original Planescape: Torment) - TLK in game root
+        root_tlk = _find_file_ci(game_dir, "dialog.tlk")
+        if root_tlk is not None:
+            return root_tlk
+        raise FileNotFoundError(f"No dialog.tlk found under {game_dir}/lang/*/ or {game_dir}")
+    for c in candidates:
+        if c.parent.name.lower() == "en_us":
+            return c
+    return candidates[0]
+
+
+def find_dialogf_tlk(dialog_tlk_path: Path) -> Optional[Path]:
+    """
+    Find the dialogf.tlk file adjacent to dialog.tlk.
+
+    dialogf.tlk contains female-gendered versions of strings from dialog.tlk.
+
+    Args:
+        dialog_tlk_path: Path to the dialog.tlk file.
+
+    Returns:
+        Path to dialogf.tlk if it exists, None otherwise.
+
+    Example:
+        >>> tlk_path = Path("lang/en_US/dialog.tlk")
+        >>> tlkf_path = find_dialogf_tlk(tlk_path)
+        >>> if tlkf_path:
+        ...     print("Female dialog found")
+    """
+    return _find_file_ci(dialog_tlk_path.parent, "dialogf.tlk")
+
+
+def _find_file_ci(directory: Path, filename: str) -> Optional[Path]:
+    """
+    Find a file in a directory by name, ignoring case (e.g. PST's dialogF.tlk).
+
+    Args:
+        directory: Directory to search (non-recursive).
+        filename: File name to look for.
+
+    Returns:
+        Path to the matching file, or None if not found.
+    """
+    if not directory.is_dir():
+        return None
+    name_lower = filename.lower()
+    for entry in directory.iterdir():
+        if entry.is_file() and entry.name.lower() == name_lower:
+            return entry
+    return None
+
+
+def load_valid_strrefs(game_dir: Path) -> Set[int]:
+    """
+    Load the set of strref numbers that actually exist in a game install's
+    dialog.tlk (+ dialogf.tlk, if present).
+
+    A strref is considered valid if it's present in either file, since
+    WeiDU/the engine will resolve it from whichever TLK is active for the
+    player's chosen game language/gender.
+
+    Args:
+        game_dir: Root game directory (containing lang/*/dialog.tlk).
+
+    Returns:
+        Set of valid strref integers.
+
+    Example:
+        >>> valid_strrefs = load_valid_strrefs(Path("C:/BaldursGate"))
+        >>> print(f"Game has {len(valid_strrefs)} valid strrefs")
+    """
+    tlk_path = find_dialog_tlk(game_dir)
+    valid = set(parse_dialog_tlk(tlk_path).keys())
+
+    tlkf_path = find_dialogf_tlk(tlk_path)
+    if tlkf_path is not None:
+        valid |= set(parse_dialog_tlk(tlkf_path).keys())
+
+    return valid
+
+
+def load_strref_filter(path: Optional[Union[str, Path]] = None) -> Set[str]:
+    """
+    Load a STRREF filter list (a JSON array of strrefs) from disk.
+
+    Args:
+        path: Path to the filter file. Defaults to cfg.STRREF_FILTER_FILE.
+
+    Returns:
+        Set of strref strings to process, or empty set if the filter
+        couldn't be loaded (in which case a warning is logged).
+    """
+    logger = logging.getLogger(__name__)
+    filter_file = path if path is not None else cfg.STRREF_FILTER_FILE
+    if not os.path.exists(filter_file):
+        logger.warning(f"⚠️ STRREF filter file not found: {filter_file}")
+        logger.warning("   Processing all rows (no filter).")
+        return set()
+    try:
+        with open(filter_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, list):
+            logger.warning(f"⚠️ STRREF filter file must contain a JSON array, got {type(data)}")
+            return set()
+        return {str(item) for item in data}
+    except Exception as e:
+        logger.warning(f"⚠️ Could not load STRREF filter: {e}")
+        logger.warning("   Processing all rows (no filter).")
+        return set()
+
+
+def load_common_npcs(path: Optional[Union[str, Path]] = None) -> Set[str]:
+    """
+    Load the set of NPC names always treated as "common" regardless of
+    how many voiceover files they have, from a JSON array file.
+
+    Args:
+        path: Path to the common-NPCs file. Defaults to cfg.COMMON_NPCS_FILE.
+
+    Returns:
+        Set of NPC folder names to force into the "common" group, or an
+        empty set if the file couldn't be loaded (grouping then falls
+        back to CORE_NPC_THRESHOLD alone).
+    """
+    logger = logging.getLogger(__name__)
+    common_file = path if path is not None else cfg.COMMON_NPCS_FILE
+    if not os.path.exists(common_file):
+        logger.warning(f"⚠️ Common NPCs file not found: {common_file}")
+        logger.warning("   Grouping by CORE_NPC_THRESHOLD only.")
+        return set()
+    try:
+        with open(common_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, list):
+            logger.warning(f"⚠️ Common NPCs file must contain a JSON array, got {type(data)}")
+            return set()
+        return {str(item) for item in data}
+    except Exception as e:
+        logger.warning(f"⚠️ Could not load common NPCs list: {e}")
+        return set()
+
+
+def save_strref_filter(path: Union[str, Path], strrefs: Any) -> None:
+    """
+    Write a STRREF filter list to disk as a sorted JSON array.
+
+    Overwrites the target file unconditionally with exactly the given
+    strrefs - no merging with whatever the file previously contained.
+
+    Args:
+        path: Path to write the filter file to.
+        strrefs: Iterable of strref values (ints or strings).
+    """
+    sorted_strrefs = sorted({int(s) for s in strrefs})
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(sorted_strrefs, f, indent=2)
+
+
+# ============================================================================
+# File System Utilities
+# ============================================================================
+
+def iter_files_ci(directory: Path, extension: str) -> Iterator[Path]:
+    """
+    Iterate over files with a given extension (case-insensitive).
+
+    Args:
+        directory: Directory to search
+        extension: File extension to match (without dot, e.g., "dlg")
+
+    Yields:
+        Path objects for matching files
+
+    Example:
+        >>> for dlg_file in iter_files_ci(Path("extracted"), "dlg"):
+        ...     print(dlg_file.name)
+    """
+    ext_lower = extension.lower()
+    for entry in directory.iterdir():
+        if entry.is_file() and entry.suffix.lower() == f".{ext_lower}":
+            yield entry
+
+
+# ============================================================================
+# Case-Insensitive Dictionary
+# ============================================================================
+
+class CaseInsensitiveDict(dict):
+    """
+    A dictionary with case-insensitive string keys while preserving original key casing.
+
+    This class allows lookups with any case variation while maintaining the
+    original casing of keys for display and iteration.
+
+    Example:
+        >>> d = CaseInsensitiveDict()
+        >>> d["Hello"] = "World"
+        >>> d["HELLO"]
+        'World'
+        >>> list(d.keys())
+        ['Hello']
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the case-insensitive dictionary.
+
+        Args:
+            *args: Positional arguments (dict, iterable of pairs, or mapping)
+            **kwargs: Keyword arguments for initial key-value pairs
+        """
+        self._keys: Dict[str, str] = {}
+        super().__init__()
+        if args or kwargs:
+            self.update(*args, **kwargs)
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """
+        Set an item with case-insensitive key handling.
+
+        If a key with the same lowercase version already exists, the original
+        key is replaced with the new casing.
+
+        Args:
+            key: The key to set (case-insensitive)
+            value: The value to associate with the key
+        """
+        if isinstance(key, str):
+            lower = key.lower()
+            old_canonical = self._keys.get(lower)
+            if old_canonical is not None and old_canonical != key:
+                super().pop(old_canonical, None)
+            self._keys[lower] = key
+            super().__setitem__(key, value)
+        else:
+            super().__setitem__(key, value)
+
+    def __getitem__(self, key: str) -> Any:
+        """
+        Get an item with case-insensitive key lookup.
+
+        Args:
+            key: The key to look up (case-insensitive)
+
+        Returns:
+            The value associated with the key
+
+        Raises:
+            KeyError: If the key doesn't exist
+        """
+        if isinstance(key, str):
+            canonical = self._keys.get(key.lower())
+            if canonical is None:
+                raise KeyError(key)
+            return super().__getitem__(canonical)
+        return super().__getitem__(key)
+
+    def __delitem__(self, key: str) -> None:
+        """
+        Delete an item with case-insensitive key lookup.
+
+        Args:
+            key: The key to delete (case-insensitive)
+
+        Raises:
+            KeyError: If the key doesn't exist
+        """
+        if isinstance(key, str):
+            canonical = self._keys.get(key.lower())
+            if canonical is None:
+                raise KeyError(key)
+            self._keys.pop(key.lower())
+            super().__delitem__(canonical)
+        else:
+            super().__delitem__(key)
+
+    def __contains__(self, key: object) -> bool:
+        """
+        Check if a key exists (case-insensitive).
+
+        Args:
+            key: The key to check
+
+        Returns:
+            True if the key exists, False otherwise
+        """
+        if isinstance(key, str):
+            return key.lower() in self._keys
+        return super().__contains__(key)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get an item with a default value if not found (case-insensitive).
+
+        Args:
+            key: The key to look up
+            default: Value to return if key is not found
+
+        Returns:
+            The value associated with the key, or default if not found
+        """
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def pop(self, key: str, *args) -> Any:
+        """
+        Remove and return a value (case-insensitive).
+
+        Args:
+            key: The key to remove
+            *args: Optional default value if key not found
+
+        Returns:
+            The popped value, or default if provided and key not found
+
+        Raises:
+            KeyError: If key not found and no default provided
+        """
+        if isinstance(key, str):
+            canonical = self._keys.get(key.lower())
+            if canonical is None:
+                if args:
+                    return args[0]
+                raise KeyError(key)
+            self._keys.pop(key.lower())
+            return super().pop(canonical)
+        return super().pop(key, *args)
+
+    def update(self, *args, **kwargs) -> None:
+        """
+        Update the dictionary with key-value pairs (case-insensitive).
+
+        Args:
+            *args: Dictionary or iterable of pairs
+            **kwargs: Keyword arguments
+        """
+        if args:
+            other = args[0]
+            if isinstance(other, dict):
+                for key, value in other.items():
+                    self[key] = value
+            else:
+                for key, value in other:
+                    self[key] = value
+        for key, value in kwargs.items():
+            self[key] = value
+
+    def copy(self) -> 'CaseInsensitiveDict':
+        """
+        Create a shallow copy of the dictionary.
+
+        Returns:
+            A new CaseInsensitiveDict with the same keys and values
+        """
+        new_dict = CaseInsensitiveDict()
+        new_dict._keys = self._keys.copy()
+        for key in self._keys.values():
+            new_dict[key] = super(CaseInsensitiveDict, new_dict).__getitem__(key)
+        return new_dict
+
+    def __repr__(self) -> str:
+        """Return a string representation of the dictionary."""
+        items = {self._keys.get(k.lower(), k): v for k, v in super().items()}
+        return f"{self.__class__.__name__}({items!r})"
+
+
+def get_canonical_key(d: CaseInsensitiveDict, key: str) -> Optional[str]:
+    """
+    Get the canonical (original-casing) key from a CaseInsensitiveDict.
+
+    Args:
+        d: The CaseInsensitiveDict to query
+        key: The key to get the canonical form of
+
+    Returns:
+        The original-cased key if it exists, None otherwise
+
+    Example:
+        >>> d = CaseInsensitiveDict({"Hello": "World"})
+        >>> get_canonical_key(d, "HELLO")
+        'Hello'
+    """
+    if not isinstance(key, str):
+        return key if key in d else None
+    return d._keys.get(key.lower())
+
+
+# ============================================================================
+# Audio Processing
+# ============================================================================
+
+def get_audio_duration(audio_path: Union[Path, str]) -> Optional[float]:
+    """
+    Get the duration of an audio file in seconds using ffprobe.
+
+    Args:
+        audio_path: Path to the audio file.
+
+    Returns:
+        Duration in seconds, or None if it could not be determined
+        (missing file, missing ffprobe, unreadable format, etc.).
+
+    Example:
+        >>> duration = get_audio_duration("voice.wav")
+        >>> if duration:
+        ...     print(f"Audio is {duration:.2f}s long")
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        cmd = [
+            'ffprobe',
+            '-v', 'error',
+            '-show_entries', 'format=duration',
+            '-of', 'default=noprint_wrappers=1:nokey=1',
+            str(audio_path)
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0 and result.stdout.strip():
+            return float(result.stdout.strip())
+        return None
+    except Exception as e:
+        logger.error(f"Failed to get duration for {audio_path}: {e}")
+        return None
+
+
+def convert_to_ogg(
+    input_path: Union[Path, str],
+    output_path: Union[Path, str],
+    quality: Optional[int] = None
+) -> bool:
+    """
+    Convert audio file to Ogg Vorbis format using ffmpeg.
+
+    Args:
+        input_path: Path to input audio file.
+        output_path: Path to output Ogg file (will be overwritten if exists).
+        quality: Vorbis quality (0-10, 4 is good quality/size balance).
+            Defaults to cfg.OGG_QUALITY if not given.
+
+    Returns:
+        True if conversion succeeded, False otherwise.
+
+    Example:
+        >>> if convert_to_ogg("input.wav", "output.ogg", quality=4):
+        ...     print("Conversion successful")
+    """
+    if quality is None:
+        quality = cfg.OGG_QUALITY
+    cmd = [
+        'ffmpeg',
+        '-y',                      # Overwrite output files
+        '-i', str(input_path),     # Input file
+        '-c:a', 'libvorbis',       # Use libvorbis codec
+        '-qscale:a', str(quality), # Quality setting
+        '-f', 'ogg',               # Force Ogg container format
+        str(output_path)
+    ]
+
+    logger = logging.getLogger(__name__)
+    try:
+        logger.debug(f"Converting: {input_path} -> {output_path}")
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        logger.debug("Conversion successful")
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"FFmpeg error: {e.stderr}")
+        return False
+    except FileNotFoundError:
+        logger.error("ffmpeg not found! Please install ffmpeg.")
+        return False
+
+
+# ============================================================================
+# Time / Progress Formatting
+# ============================================================================
+
+def format_time(seconds: float) -> str:
+    """
+    Convert a duration in seconds to a human-readable string.
+
+    Converts seconds to a compact format with appropriate units:
+    - Under 60 seconds: "Xs" (e.g., "45.5s")
+    - 1-59 minutes: "XmYs" (e.g., "5m30s")
+    - 1-23 hours: "XhYm" (e.g., "2h15m")
+    - 24+ hours: "XdYh" (e.g., "3d5h")
+
+    Args:
+        seconds: Duration in seconds.
+
+    Returns:
+        A formatted string representing the duration.
+
+    Example:
+        >>> format_time(3665)
+        '1h1m'
+        >>> format_time(125.5)
+        '2m5s'
+    """
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    if minutes < 60:
+        return f"{minutes}m{secs}s"
+    hours = int(minutes // 60)
+    mins = int(minutes % 60)
+    if hours < 24:
+        return f"{hours}h{mins}m"
+    days = int(hours // 24)
+    hrs = int(hours % 24)
+    return f"{days}d{hrs}h"
+
+
+def format_finish_time(eta_seconds: float) -> str:
+    """
+    Return the expected finish time as a formatted time string.
+
+    If the estimated time is today, returns time in "HH:MM:SS" format.
+    Otherwise, includes the date in locale-appropriate format.
+
+    Args:
+        eta_seconds: Estimated seconds until completion.
+
+    Returns:
+        Formatted finish time string, or "..." if eta_seconds <= 0.
+
+    Example:
+        >>> format_finish_time(3600)  # 1 hour from now
+        '15:30:00'
+    """
+    if eta_seconds > 0:
+        finish = datetime.now() + timedelta(seconds=eta_seconds)
+        if finish.date() == datetime.now().date():
+            return finish.strftime("%H:%M:%S")
+        return finish.strftime("%x %X")
+    return "..."
+
+
+
+# ============================================================================
+# Logging Setup
+# ============================================================================
+
+_configured_scripts: Set[str] = set()
+
+
+def setup_logging(
+    script_name: str,
+    level: int = logging.INFO,
+    console_level: Optional[int] = None,
+    file_level: Optional[int] = None
+) -> logging.Logger:
+    """
+    Set up standardized logging for a script.
+
+    Creates a logger that writes to both console and a log file in the
+    configured log directory. The log file includes timestamps and log levels,
+    while the console output is clean (message only) by default.
+
+    The file/console handlers are attached to the root logger rather than the
+    script-named logger, and propagation is left enabled, so log calls made
+    anywhere else in the process (e.g. libs.* modules using
+    logging.getLogger(__name__)) are also captured in the script's log file
+    and console output, not just calls made through the returned logger.
+
+    Args:
+        script_name: Name of the script (used for the log filename).
+        level: Default log level for the script's own logger.
+        console_level: Log level for console output (defaults to level).
+        file_level: Log level for file output (defaults to level).
+
+    Returns:
+        A configured logger instance.
+
+    Example:
+        >>> logger = setup_logging("my_script")
+        >>> logger.info("This goes to both console and log file")
+    """
+    log_dir = Path(cfg.LOG_DIR)
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    log_file = log_dir / f"{script_name}.log"
+
+    logger = logging.getLogger(script_name)
+    logger.setLevel(level)
+
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    if script_name in _configured_scripts:
+        return logger
+    _configured_scripts.add(script_name)
+
+    file_handler = logging.FileHandler(log_file, encoding='utf-8')
+    file_handler.setLevel(file_level if file_level is not None else level)
+    file_handler.setFormatter(
+        logging.Formatter(
+            fmt='%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+    )
+    root.addHandler(file_handler)
+
+    # One console handler per process: importing another script's module must not echo every line again.
+    # VVE_LOG_STDOUT=1 keeps console output when stdout is a pipe (e.g. a GUI reading a child process).
+    wants_console = os.environ.get("VVE_LOG_STDOUT") == "1" or (
+        sys.stdout and hasattr(sys.stdout, 'isatty') and sys.stdout.isatty())
+    has_console = any(type(h) is logging.StreamHandler for h in root.handlers)
+    if wants_console and not has_console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(console_level if console_level is not None else level)
+        console_handler.setFormatter(logging.Formatter('%(message)s'))
+        root.addHandler(console_handler)
+
+    for noisy_logger in ("urllib3", "urllib3.connectionpool", "requests"):
+        logging.getLogger(noisy_logger).setLevel(logging.WARNING)
+
+    return logger
